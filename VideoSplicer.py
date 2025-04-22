@@ -1,8 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, StringVar, Variable, ttk
 import ffmpeg
-
-
+import subprocess
 
 class VideoSplicerApp(tk.Tk):
 
@@ -27,11 +26,11 @@ class VideoSplicerApp(tk.Tk):
     def constructor_styles(root):
         style = ttk.Style(root)
         style.theme_use('clam')
-        # style.configure('TFrame', background='#333333')
-        # style.configure('TLabel', background='#333333', foreground='#EEE', font=('Segoe UI', 10))
-        # style.configure('TEntry', fieldbackground='#555', foreground='#EEE', font=('Segoe UI', 10))
-        # style.configure('TButton', background='#555', foreground='#EEE', font=('Segoe UI', 10, 'bold'), padding=6)
-        # style.map('TButton', background=[('active', '#666')], foreground=[('active', '#FFF')])
+        style.configure('TFrame', background='#333333')
+        style.configure('TLabel', background='#333333', foreground='#EEE', font=('Segoe UI', 10))
+        style.configure('TEntry', fieldbackground='#555', foreground='#EEE', font=('Segoe UI', 10))
+        style.configure('TButton', background='#555', foreground='#EEE', font=('Segoe UI', 10, 'bold'), padding=6)
+        style.map('TButton', background=[('active', '#666')], foreground=[('active', '#FFF')])
 
     def constuctor_layout(root):
 
@@ -53,25 +52,25 @@ class VideoSplicerApp(tk.Tk):
         time_slot2.grid(row=5, column=1)
 
 
-        # ttk.Label(root, textvariable=grab_video_path).grid(row=1, column=0, padx=10, pady=10)
-        # ttk.Label(root, textvariable=render_video_path).grid(row=1, column=0, padx=10, pady=10)
+        ttk.Label(root, textvariable=root.grab_video_path).grid(row=1, column=0, padx=10, pady=10)
+        ttk.Label(root, textvariable=root.render_video_path).grid(row=1, column=0, padx=10, pady=10)
 
 
-        # ttk.Button(root, text="Export", command=export).grid(row=7, column=0, padx=10, pady=10)
+        ttk.Button(root, text="Export", command=root.export).grid(row=7, column=0, padx=10, pady=10)
 
-        # menu = ttk.Menu(root)
-        # root.config(menu=menu)
-        # menu.add_cascade(label='Exit', command=root.destroy)
+        #menu = ttk.Menu(root)
+        #root.config(menu=menu)
+        #menu.add_cascade(label='Exit', command=root.destroy)
 
 
 
 
     # -------------------------------------------------------------------------------------------------------------- #
-    # time_slot1 = Variable
-    # time_slot2 = Variable
-    # grab_video_path = ""
-    # render_video_path = ""
-    # duration = 10 # 10 seconds
+    time_slot1 = Variable
+    time_slot2 = Variable
+    grab_video_path = ""
+    render_video_path = ""
+    duration = 10 # 10 seconds
 
     def grab_video(root):
         global grab_video_path
@@ -81,8 +80,16 @@ class VideoSplicerApp(tk.Tk):
     def set_render_video_path(root):
         root.render_video_path.set(filedialog.askdirectory())
 
-    # def export():
-    #     ffmpeg.input(grab_video_path, ss=0).output('output_file.mp4', t=duration).run()
+    def export(root):
+        str_timeslot1 = str(root.time_slot1).split(":")
+        str_timeslot2 = str(root.time_slot2).split(":")
+        timeslot1 = 0
+        timeslot2 = 0
+        for i in range(len(str_timeslot1)): timeslot1 += int(str_timeslot1[i]) * 60 ^ (2 - i)
+        for i in range(len(str_timeslot1)): timeslot2+=int(str_timeslot2[i])*60^(2-i)
+
+        cmd = ["ffmpeg", "-i", "-ss", timeslot1, "-to", timeslot2, "-c:v", "copy", "-c:a", "copy", "output.mp4"]
+        subprocess.run(cmd)
 
 
 
