@@ -1,8 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, StringVar, Variable, ttk
 import ffmpeg
-
-
+import subprocess
 
 class VideoSplicerApp(tk.Tk):
 
@@ -65,9 +64,12 @@ class VideoSplicerApp(tk.Tk):
         menu.add_cascade(label="File", menu=file_menu)
 
 
-
-
     # -------------------------------------------------------------------------------------------------------------- #
+    time_slot1 = Variable
+    time_slot2 = Variable
+    grab_video_path = ""
+    render_video_path = ""
+    duration = 10 # 10 seconds
 
     def grab_video(root):
         global grab_video_path
@@ -78,7 +80,15 @@ class VideoSplicerApp(tk.Tk):
         root.render_video_path.set(filedialog.askdirectory())
 
     def export(root):
-        ffmpeg.input(grab_video_path, ss=0).output('output_file.mp4', t=10).run()
+        str_timeslot1 = str(root.time_slot1).split(":")
+        str_timeslot2 = str(root.time_slot2).split(":")
+        timeslot1 = 0
+        timeslot2 = 0
+        for i in range(len(str_timeslot1)): timeslot1 += int(str_timeslot1[i]) * 60 ^ (2 - i)
+        for i in range(len(str_timeslot1)): timeslot2+=int(str_timeslot2[i])*60^(2-i)
+
+        cmd = ["ffmpeg", "-i", "-ss", timeslot1, "-to", timeslot2, "-c:v", "copy", "-c:a", "copy", "output.mp4"]
+        subprocess.run(cmd)
 
 
 
