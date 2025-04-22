@@ -15,6 +15,7 @@ class VideoSplicerApp(tk.Tk):
         root.configure(bg='#333333')
         root.constructor_variables()
         root.constructor_styles()
+        root.constuctor_layout()
 
 
     def constructor_variables(root):
@@ -58,9 +59,9 @@ class VideoSplicerApp(tk.Tk):
 
         # ttk.Button(root, text="Export", command=export).grid(row=7, column=0, padx=10, pady=10)
 
-        menu = ttk.Menu(root)
-        root.config(menu=menu)
-        menu.add_cascade(label='Exit', command=root.destroy)
+        # menu = ttk.Menu(root)
+        # root.config(menu=menu)
+        # menu.add_cascade(label='Exit', command=root.destroy)
 
 
 
