@@ -1,0 +1,8 @@
+Checks all files in a folder, groups them by size and shows groups of files with the same size. Open in powershell
+
+Get-ChildItem -Recurse | Where-Object { -not $_.PSIsContainer } | 
+Group-Object Length | Where-Object { $_.Count -gt 1 } |
+ForEach-Object {
+    $_.Group | Select-Object FullName, Length
+}
+
