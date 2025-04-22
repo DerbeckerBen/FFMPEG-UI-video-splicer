@@ -10,7 +10,7 @@ class VideoSplicerApp(tk.Tk):
     def __init__(root):
         super().__init__()
         root.title("FFMPEG Video Splicer")
-        root.geometry("600x350")
+        root.geometry("1200x700")
         root.configure(bg='#333333')
         root.constructor_variables()
         root.constructor_styles()
@@ -19,7 +19,7 @@ class VideoSplicerApp(tk.Tk):
 
     def constructor_variables(root):
         root.grab_video_path = StringVar(value="No file selected")
-        root.render_video_path = StringVar(value="No file selected")
+        root.render_video_path = StringVar(value="No folder selected")
         root.time_slot1 = StringVar()
         root.time_slot2 = StringVar()
 
@@ -65,19 +65,19 @@ class VideoSplicerApp(tk.Tk):
 
 
     # -------------------------------------------------------------------------------------------------------------- #
-    time_slot1 = Variable
-    time_slot2 = Variable
-    grab_video_path = ""
-    render_video_path = ""
-    duration = 10 # 10 seconds
 
     def grab_video(root):
-        global grab_video_path
-        grab_video_path = (filedialog.askopenfilename(filetypes=[("Video Files", "*.mp4")]))
+        path = (filedialog.askopenfilename(filetypes=[("MP4 Videos", "*.mp4")]))
+        if path:
+            root.grab_video_path.set(path)
+        
 
 
     def set_render_video_path(root):
         root.render_video_path.set(filedialog.askdirectory())
+        folder = filedialog.askdirectory()
+        if folder:
+            root.render_video_path.set(folder)
 
     def export(root):
         str_timeslot1 = str(root.time_slot1).split(":")
