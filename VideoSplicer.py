@@ -76,17 +76,14 @@ class VideoSplicerApp(tk.Tk):
 
 
     def set_render_video_path(root):
-        root.render_video_path.set(filedialog.askdirectory())
+        # root.render_video_path.set(filedialog.askdirectory()) <--- 🤡
         folder = filedialog.askdirectory()
         if folder:
             root.render_video_path.set(folder)
 
     def export(root):
-        cmd = ["ffmpeg", "-i",root.grab_video_path.get() , "-ss", root.time_slot1.get(), "-to", root.time_slot2.get(), "-c", "copy", "output.mp4"]
+        cmd = ["ffmpeg", "-i",root.grab_video_path.get() , "-ss", root.time_slot1.get(), "-to", root.time_slot2.get(), "-c", "copy", (os.path.join(root.render_video_path.get(), "output.mp4"))]
         subprocess.run(cmd)
-
-
-
 
 
 
