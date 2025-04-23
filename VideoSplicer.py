@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog, StringVar, Variable, ttk
 import ffmpeg
 import subprocess
+import os
 
 class VideoSplicerApp(tk.Tk):
 
@@ -51,10 +52,11 @@ class VideoSplicerApp(tk.Tk):
         ttk.Label(main_frame, text = "Enter timestamps in format HH:MM:SS").grid(row=3, column=0, columnspan=2, sticky="w", padx=5, pady=(0,5))
 
         ttk.Label(main_frame, text="Start time:").grid(row=4, column=0, sticky="e", padx=5, pady=2)
-        ttk.Entry(main_frame, textvariable=root.time_slot1).grid(row=4, column=1, sticky="ew", padx=5, pady=2)
+        time_slot1 = ttk.Entry(main_frame, textvariable=root.time_slot1)
+        time_slot1.grid(row=4, column=1, sticky="ew", padx=5, pady=2)
         ttk.Label(main_frame, text="End time:").grid(row=5, column=0, sticky="e", padx=5, pady=2)
-        ttk.Entry(main_frame, textvariable=root.time_slot2).grid(row=5, column=1, sticky="ew", padx=5, pady=2)
-
+        time_slot2 = ttk.Entry(main_frame, textvariable=root.time_slot2)
+        time_slot2.grid(row=5, column=1, sticky="ew", padx=5, pady=2)
         ttk.Button(main_frame, text="Export Clip", command=root.export).grid(row=6, column=0, columnspan=2, sticky="ew", padx=5, pady=(15,5))
 
         menu = tk.Menu(root)
@@ -80,14 +82,7 @@ class VideoSplicerApp(tk.Tk):
             root.render_video_path.set(folder)
 
     def export(root):
-        str_timeslot1 = str(root.time_slot1).split(":")
-        str_timeslot2 = str(root.time_slot2).split(":")
-        timeslot1 = 0
-        timeslot2 = 0
-        for i in range(len(str_timeslot1)): timeslot1 += int(str_timeslot1[i]) * 60 ^ (2 - i)
-        for i in range(len(str_timeslot1)): timeslot2+=int(str_timeslot2[i])*60^(2-i)
-
-        cmd = ["ffmpeg", "-i", "-ss", timeslot1, "-to", timeslot2, "-c:v", "copy", "-c:a", "copy", "output.mp4"]
+        cmd = ["ffmpeg", "-i",root.grab_video_path.get() , "-ss", root.time_slot1.get(), "-to", root.time_slot2.get(), "-c", "copy", "output.mp4"]
         subprocess.run(cmd)
 
 
