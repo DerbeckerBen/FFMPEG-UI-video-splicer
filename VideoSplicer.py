@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import filedialog, StringVar, Variable, ttk
-import ffmpeg
 import subprocess
 import os
 
@@ -21,8 +20,8 @@ class VideoSplicerApp(tk.Tk):
     def constructor_variables(root):
         root.grab_video_path = StringVar(value="No file selected")
         root.render_video_path = StringVar(value="No folder selected")
-        root.time_slot1 = StringVar()
-        root.time_slot2 = StringVar()
+        root.time_slot1 = StringVar(value="00:00:00")
+        root.time_slot2 = StringVar(value="00:00:00")
         root.output_text = StringVar(value="No issues")
 
     def constructor_styles(root):
@@ -80,39 +79,17 @@ class VideoSplicerApp(tk.Tk):
 
 
     def set_render_video_path(root):
-        # root.render_video_path.set(filedialog.askdirectory()) <--- 🤡
         folder = filedialog.askdirectory()
         if folder:
             root.render_video_path.set(folder)
 
     def export(root):
-        can_export = True
-        temp = ""
-        if root.time_slot1.get() == "":
-            can_export = False
-            temp += "First time slot isnt set"
 
-        if root.time_slot2.get() == "":
-            can_export = False
-            if not temp == "": temp += ", "
-            temp += "Second time slot isnt set"
+        ## 
 
-        if root.grab_video_path.get() == "No file selected":
-            can_export = False
-            if not temp == "": temp += ", "
-            temp += "No video selected"
+        cmd = ["ffmpeg", "-i",root.grab_video_path.get() , "-ss", root.time_slot1.get(), "-to", root.time_slot2.get(), "-c", "copy", (os.path.join(root.render_video_path.get(), "output.mp4"))]
+        subprocess.run(cmd, capture_output=True)
 
-        if root.render_video_path.get() == "No folder selected":
-            can_export = False
-            if not temp == "": temp += ", "
-            temp += "No video  export path selected"
-
-        if can_export:
-            cmd = ["ffmpeg", "-i",root.grab_video_path.get() , "-ss", root.time_slot1.get(), "-to", root.time_slot2.get(), "-c", "copy", (os.path.join(root.render_video_path.get(), "output.mp4"))]
-            subprocess.run(cmd, capture_output=True)
-        else:
-            print("penis")
-            root.output_text.set("Changed text")
 
     # def console_pop(root, warning):
     #     window = tk.Toplevel(root)
