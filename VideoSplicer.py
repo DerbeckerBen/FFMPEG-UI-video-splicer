@@ -23,6 +23,7 @@ class VideoSplicerApp(tk.Tk):
         root.render_video_path = StringVar(value="No folder selected")
         root.time_slot1 = StringVar()
         root.time_slot2 = StringVar()
+        root.output_text = StringVar(value = "No issues")
 
     def constructor_styles(root):
         style = ttk.Style(root)
@@ -58,6 +59,7 @@ class VideoSplicerApp(tk.Tk):
         time_slot2 = ttk.Entry(main_frame, textvariable=root.time_slot2)
         time_slot2.grid(row=5, column=1, sticky="ew", padx=5, pady=2)
         ttk.Button(main_frame, text="Export Clip", command=root.export).grid(row=6, column=0, columnspan=2, sticky="ew", padx=5, pady=(15,5))
+        ttk.Label(main_frame, text=root.output_text).grid(row=7, column=0, sticky="w", padx=5, pady=5)
 
         menu = tk.Menu(root)
         root.config(menu=menu)
@@ -82,8 +84,41 @@ class VideoSplicerApp(tk.Tk):
             root.render_video_path.set(folder)
 
     def export(root):
-        cmd = ["ffmpeg", "-i",root.grab_video_path.get() , "-ss", root.time_slot1.get(), "-to", root.time_slot2.get(), "-c", "copy", (os.path.join(root.render_video_path.get(), "output.mp4"))]
-        subprocess.run(cmd)
+        can_export = True
+        temp = ""
+        if root.time_slot1.get() == "":
+            can_export = False
+            temp += "First time slot isnt set"
+
+        if root.time_slot2.get() == "":
+            can_export = False
+            if not temp == "": temp += ", "
+            temp += "Second time slot isnt set"
+
+        if root.grab_video_path.get() == "No file selected":
+            can_export = False
+            if not temp == "": temp += ", "
+            temp += "No video selected"
+
+        if root.render_video_path.get() == "No folder selected":
+            can_export = False
+            if not temp == "": temp += ", "
+            temp += "No video  export path selected"
+
+        if can_export:
+            cmd = ["ffmpeg", "-i",root.grab_video_path.get() , "-ss", root.time_slot1.get(), "-to", root.time_slot2.get(), "-c", "copy", (os.path.join(root.render_video_path.get(), "output.mp4"))]
+            subprocess.run(cmd, capture_output=True)
+        else:
+            root.output_text = StringVar(value="No issues")
+
+    # def console_pop(root, warning):
+    #     window = tk.Toplevel(root)
+    #     window.title("Warning")
+    #     screenwidth = window.winfo_screenwidth() / 2
+    #     screenheight = window.winfo_screenheight() / 2
+    #     window.geometry("200x100+%d+%d" % (screenwidth, screenheight))
+    #     ttk.Label(window, text=warning).pack(padx=5, pady=5)
+
 
 
 
