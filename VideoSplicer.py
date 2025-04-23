@@ -23,7 +23,7 @@ class VideoSplicerApp(tk.Tk):
         root.render_video_path = StringVar(value="No folder selected")
         root.time_slot1 = StringVar()
         root.time_slot2 = StringVar()
-        root.output_text = StringVar(value = "No issues")
+        root.output_text = StringVar(value="No issues")
 
     def constructor_styles(root):
         style = ttk.Style(root)
@@ -58,8 +58,10 @@ class VideoSplicerApp(tk.Tk):
         ttk.Label(main_frame, text="End time:").grid(row=5, column=0, sticky="e", padx=5, pady=2)
         time_slot2 = ttk.Entry(main_frame, textvariable=root.time_slot2)
         time_slot2.grid(row=5, column=1, sticky="ew", padx=5, pady=2)
+
         ttk.Button(main_frame, text="Export Clip", command=root.export).grid(row=6, column=0, columnspan=2, sticky="ew", padx=5, pady=(15,5))
-        ttk.Label(main_frame, text=root.output_text).grid(row=7, column=0, sticky="w", padx=5, pady=5)
+        ttk.Label(main_frame, textvariable=root.output_text).grid(row=7, column=0, sticky="w", padx=5, pady=5)
+
 
         menu = tk.Menu(root)
         root.config(menu=menu)
@@ -109,7 +111,8 @@ class VideoSplicerApp(tk.Tk):
             cmd = ["ffmpeg", "-i",root.grab_video_path.get() , "-ss", root.time_slot1.get(), "-to", root.time_slot2.get(), "-c", "copy", (os.path.join(root.render_video_path.get(), "output.mp4"))]
             subprocess.run(cmd, capture_output=True)
         else:
-            root.output_text = StringVar(value="No issues")
+            print("penis")
+            root.output_text.set("Changed text")
 
     # def console_pop(root, warning):
     #     window = tk.Toplevel(root)
