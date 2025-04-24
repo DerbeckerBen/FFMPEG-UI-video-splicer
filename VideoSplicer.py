@@ -17,9 +17,6 @@ class VideoSplicerApp(tk.Tk):
         root.constructor_styles()
         root.constuctor_layout()
 
-
-
-
     def constructor_variables(root):
         root.grab_video_path = StringVar(value="No file selected")
         root.render_video_path = StringVar(value="No folder selected")
@@ -27,8 +24,8 @@ class VideoSplicerApp(tk.Tk):
         root.time_slot2 = StringVar(value="00:00:00")
         root.output_text = StringVar(value="No issues")
 
-        root.width = 1200
-        root.height = 700
+        root.width = 1000
+        root.height = 563
 
     def constructor_styles(root):
         style = ttk.Style(root)
@@ -47,6 +44,7 @@ class VideoSplicerApp(tk.Tk):
 
         main_frame = ttk.Frame(root, padding=(20, 15))
         main_frame.grid(sticky="nsew")
+        main_frame.columnconfigure(0, weight=1)
         main_frame.columnconfigure(1, weight=1)
 
 
@@ -110,8 +108,23 @@ class VideoSplicerApp(tk.Tk):
 
         # Output file name already exists
 
+        if not os.path.isfile(root.grab_video_path.get()):
+            root.output_text.set("Invalid video file.")
+            return
+        
+        if not os.path.isdir(root.render_video_path.get()):
+            root.output_text.set("Invalid folder path.")
+            return
+        
+        if root.time_slot1.get() >= root.time_slot2.get():
+            root.output_text.set("End time must start after start time.")
+            return
+        
+        
         cmd = ["ffmpeg", "-i",root.grab_video_path.get() , "-ss", root.time_slot1.get(), "-to", root.time_slot2.get(), "-c", "copy", (os.path.join(root.render_video_path.get(), "output.mp4"))]
         subprocess.run(cmd, capture_output=True)
+
+        root.output_text.set("Success!")
 
 
     # def console_pop(root, warning):
@@ -134,3 +147,31 @@ class VideoSplicerApp(tk.Tk):
 if __name__ == "__main__":
     app = VideoSplicerApp()
     app.mainloop()
+
+    
+# To add later:
+#
+#   Replace error text with pop text (Make the error noticable)
+#
+#   Prevent the whole thing from freezing when splicing a large section. (Loading screen)
+#
+#   Make resize buttons work
+#
+#   Have output file name option
+#
+#   
+#
+#
+# ----------
+# Future ideas:
+#   
+#   Video preview
+#   
+#   Place sliders on video progress bar instead of typing in exact timeslots
+#   
+#   make this a subsection of the full a full FFMPEG GUI command list. (like a main menu and this is one of the options)
+#   
+#   Optimize code for speed
+#   
+#   
+#   
