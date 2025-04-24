@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog, StringVar, Variable, ttk
+from tkinter import filedialog, StringVar, ttk
 import subprocess
 import os
 
@@ -9,12 +9,15 @@ class VideoSplicerApp(tk.Tk):
 
     def __init__(root):
         super().__init__()
-        root.title("FFMPEG Video Splicer")
-        root.geometry("1200x700")
-        root.configure(bg='#333333')
+
         root.constructor_variables()
+        root.title("FFMPEG Video Splicer")
+        root.geometry(f"{root.width}x{root.height}")
+        root.configure(bg='#333333')
         root.constructor_styles()
         root.constuctor_layout()
+
+
 
 
     def constructor_variables(root):
@@ -24,6 +27,9 @@ class VideoSplicerApp(tk.Tk):
         root.time_slot2 = StringVar(value="00:00:00")
         root.output_text = StringVar(value="No issues")
 
+        root.width = 1200
+        root.height = 700
+
     def constructor_styles(root):
         style = ttk.Style(root)
         style.theme_use('clam')
@@ -32,6 +38,7 @@ class VideoSplicerApp(tk.Tk):
         style.configure('TEntry', fieldbackground='#555', foreground='#EEE', font=('Segoe UI', 10))
         style.configure('TButton', background='#555', foreground='#EEE', font=('Segoe UI', 10, 'bold'), padding=6)
         style.map('TButton', background=[('active', '#666')], foreground=[('active', '#FFF')])
+        style.tk.call('tk', 'scaling', 3.0)
 
     def constuctor_layout(root):
 
@@ -68,6 +75,14 @@ class VideoSplicerApp(tk.Tk):
         file_menu.add_command(label="Exit", command=root.destroy)
         menu.add_cascade(label="File", menu=file_menu)
 
+        resize_menu = tk.Menu(menu, tearoff=0, bg='#444', fg='#EEE')
+        resize_menu.add_command(label=".5x", command=lambda: root.window_scaling(0.5))
+        resize_menu.add_command(label="1.0x", command=lambda: root.window_scaling(1.0))
+        resize_menu.add_command(label="2.0x", command=lambda: root.window_scaling(2.0))
+        resize_menu.add_command(label="3.0x", command=lambda: root.window_scaling(3.0))
+        menu.add_cascade(label="Resize", menu=resize_menu)
+
+
 
     # -------------------------------------------------------------------------------------------------------------- #
 
@@ -77,7 +92,6 @@ class VideoSplicerApp(tk.Tk):
             root.grab_video_path.set(path)
         
 
-
     def set_render_video_path(root):
         folder = filedialog.askdirectory()
         if folder:
@@ -85,7 +99,16 @@ class VideoSplicerApp(tk.Tk):
 
     def export(root):
 
-        ## 
+        # THINGS TO HANDLE
+
+        # No file selected/ not found.
+        # folder not selected/ not found.
+
+        # Time stamp 1 inputted incorrectly
+        # Time stamp 2 inputted incorrectly
+        # Time stamp 2 cannot be before time stamp 1.
+
+        # Output file name already exists
 
         cmd = ["ffmpeg", "-i",root.grab_video_path.get() , "-ss", root.time_slot1.get(), "-to", root.time_slot2.get(), "-c", "copy", (os.path.join(root.render_video_path.get(), "output.mp4"))]
         subprocess.run(cmd, capture_output=True)
@@ -100,6 +123,10 @@ class VideoSplicerApp(tk.Tk):
     #     ttk.Label(window, text=warning).pack(padx=5, pady=5)
 
 
+
+    def window_scaling(root, scale):
+        root.tk.call('tk', 'scaling', scale)
+ 
 
 
 
