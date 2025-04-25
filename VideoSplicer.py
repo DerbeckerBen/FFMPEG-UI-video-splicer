@@ -147,7 +147,7 @@ class VideoSplicerApp(tk.Tk):
         screenwidth = window.winfo_screenwidth() / 2
         screenheight = window.winfo_screenheight() / 2
         window.geometry("300x200+%d+%d" % (screenwidth, screenheight))
-        ttk.Label(window, text=warning).pack(padx=10, pady=10)
+        ttk.Label(window, text=warning, background = "#FF0000", foreground="#FFFFFF", font=('Segoe UI', 10)).pack(padx=10, pady=10)
 
 
         ttk.Button(window, text="OK", command=window.destroy).pack(padx = 10, pady = 10)
