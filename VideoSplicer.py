@@ -118,10 +118,12 @@ class VideoSplicerApp(tk.Tk):
         
         if not os.path.isdir(root.render_video_path.get()):
             root.output_text.set("Invalid folder path.")
+            root.warning_pop("Invalid folder path.")
             return
         
         if root.time_slot1.get() >= root.time_slot2.get():
             root.output_text.set("End time must start after start time.")
+            root.warning_pop("End time must start after start time")
             return
 
 
@@ -147,7 +149,20 @@ class VideoSplicerApp(tk.Tk):
         screenwidth = window.winfo_screenwidth() / 2
         screenheight = window.winfo_screenheight() / 2
         window.geometry("300x200+%d+%d" % (screenwidth, screenheight))
-        ttk.Label(window, text=warning, background = "#FF0000", foreground="#FFFFFF", font=('Segoe UI', 10)).pack(padx=10, pady=10)
+        word_list = warning.split(" ")
+        Line1 = ""
+        Line2 = ""
+        if len(warning) > 30:
+            for i in range(len(word_list)):
+                if i < len(word_list)/2:
+                    Line1 += word_list[i]+" "
+                else:
+                    Line2 += word_list[i]+" "
+        else:
+            Line1 = warning
+
+        ttk.Label(window, text=Line1, background = "#FF0000", foreground="#FFFFFF", font=('Segoe UI', 10)).pack(padx=10, pady=5)
+        ttk.Label(window, text=Line2, background = "#FF0000", foreground="#FFFFFF", font=('Segoe UI', 10)).pack(padx=10, pady=5)
 
 
         ttk.Button(window, text="OK", command=window.destroy).pack(padx = 10, pady = 10)
