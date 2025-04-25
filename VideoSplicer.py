@@ -1,6 +1,8 @@
 import tkinter as tk
+from struct import pack_into
 from tkinter import filedialog, StringVar, ttk
 import subprocess
+from subprocess import PIPE, STDOUT, Popen, STD_INPUT_HANDLE, STD_ERROR_HANDLE
 import os
 
 class VideoSplicerApp(tk.Tk):
@@ -36,6 +38,7 @@ class VideoSplicerApp(tk.Tk):
         style.configure('TButton', background='#555', foreground='#EEE', font=('Segoe UI', 10, 'bold'), padding=6)
         style.map('TButton', background=[('active', '#666')], foreground=[('active', '#FFF')])
         style.tk.call('tk', 'scaling', 3.0)
+
 
     def constuctor_layout(root):
 
@@ -110,6 +113,7 @@ class VideoSplicerApp(tk.Tk):
 
         if not os.path.isfile(root.grab_video_path.get()):
             root.output_text.set("Invalid video file.")
+            root.warning_pop("Invalid video file.")
             return
         
         if not os.path.isdir(root.render_video_path.get()):
@@ -119,21 +123,35 @@ class VideoSplicerApp(tk.Tk):
         if root.time_slot1.get() >= root.time_slot2.get():
             root.output_text.set("End time must start after start time.")
             return
-        
+
+
+
         
         cmd = ["ffmpeg", "-i",root.grab_video_path.get() , "-ss", root.time_slot1.get(), "-to", root.time_slot2.get(), "-c", "copy", (os.path.join(root.render_video_path.get(), "output.mp4"))]
-        subprocess.run(cmd, capture_output=True)
+        proc = Popen(cmd)
+
+
+
+
+
 
         root.output_text.set("Success!")
 
 
-    # def console_pop(root, warning):
-    #     window = tk.Toplevel(root)
-    #     window.title("Warning")
-    #     screenwidth = window.winfo_screenwidth() / 2
-    #     screenheight = window.winfo_screenheight() / 2
-    #     window.geometry("200x100+%d+%d" % (screenwidth, screenheight))
-    #     ttk.Label(window, text=warning).pack(padx=5, pady=5)
+    def warning_pop(root, warning):
+        window = tk.Toplevel(root)
+        window.configure(background = "#FF0000")
+
+
+        window.title("Warning")
+        screenwidth = window.winfo_screenwidth() / 2
+        screenheight = window.winfo_screenheight() / 2
+        window.geometry("300x200+%d+%d" % (screenwidth, screenheight))
+        ttk.Label(window, text=warning).pack(padx=10, pady=10)
+
+
+        ttk.Button(window, text="OK", command=window.destroy).pack(padx = 10, pady = 10)
+
 
 
 
