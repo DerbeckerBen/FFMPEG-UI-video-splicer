@@ -4,6 +4,8 @@ from tkinter import filedialog, StringVar, ttk
 import subprocess
 from subprocess import PIPE, STDOUT, Popen, STD_INPUT_HANDLE, STD_ERROR_HANDLE
 import os
+import pandas as pd
+
 
 class VideoSplicerApp(tk.Tk):
 
@@ -127,17 +129,21 @@ class VideoSplicerApp(tk.Tk):
             return
 
 
-
-        
         cmd = ["ffmpeg", "-i",root.grab_video_path.get() , "-ss", root.time_slot1.get(), "-to", root.time_slot2.get(), "-c", "copy", (os.path.join(root.render_video_path.get(), "output.mp4"))]
-        proc = Popen(cmd)
+        list = root.execute(cmd)
+        
 
 
+    #method to write all the lines of output to a list to read
+    def execute(root, cmd):
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
+        for line in proc.stdout :
+           yield line
+        proc.stdout.close()
+        return_code = proc.wait()
+        if return_code:
+            raise subprocess.CalledProcessError(return_code, cmd)
 
-
-
-
-        root.output_text.set("Success!")
 
 
     def warning_pop(root, warning):
@@ -168,6 +174,35 @@ class VideoSplicerApp(tk.Tk):
         ttk.Button(window, text="OK", command=window.destroy).pack(padx = 10, pady = 10)
 
 
+
+
+    def yes_no_window(self, warning):
+        window = tk.Toplevel(root)
+        window.configure(background="#FF0000")
+
+        window.title("Warning")
+        screenwidth = window.winfo_screenwidth() / 2
+        screenheight = window.winfo_screenheight() / 2
+        window.geometry("300x200+%d+%d" % (screenwidth, screenheight))
+        word_list = warning.split(" ")
+        Line1 = ""
+        Line2 = ""
+        if len(warning) > 30:
+            for i in range(len(word_list)):
+                if i < len(word_list) / 2:
+                    Line1 += word_list[i] + " "
+                else:
+                    Line2 += word_list[i] + " "
+        else:
+            Line1 = warning
+
+        ttk.Label(window, text=Line1, background="#FF0000", foreground="#FFFFFF", font=('Segoe UI', 10)).pack(padx=10,
+                                                                                                              pady=5)
+        ttk.Label(window, text=Line2, background="#FF0000", foreground="#FFFFFF", font=('Segoe UI', 10)).pack(padx=10,
+                                                                                                              pady=5)
+
+        ttk.Button(window, text="Yes", command=window.destroy).grid(row = 3, column = 0, padx = 5, pady = 5)
+        ttk.Button(window, text="No", command=window.destroy and self.warning_pop("Please change the name of the output file")).grid(row = 3, column = 1, padx = 5, pady = 5)
 
 
     def window_scaling(root, scale):
