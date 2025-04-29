@@ -131,20 +131,33 @@ class VideoSplicerApp(tk.Tk):
 
         cmd = ["ffmpeg", "-i",root.grab_video_path.get() , "-ss", root.time_slot1.get(), "-to", root.time_slot2.get(), "-c", "copy", (os.path.join(root.render_video_path.get(), "output.mp4"))]
         list = root.execute(cmd)
-        
+
 
 
     #method to write all the lines of output to a list to read
     def execute(root, cmd):
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
+        templine = ""
         for line in proc.stdout :
            yield line
-        proc.stdout.close()
-        return_code = proc.wait()
-        if return_code:
-            raise subprocess.CalledProcessError(return_code, cmd)
+           templine = line
+        condition = root.check_errors(templine)
+        if condition == "No errors":
+            proc.stdout.close()
+            return_code = proc.wait()
+            if return_code:
+                raise subprocess.CalledProcessError(return_code, cmd)
+        else:
+            if condition == "File already exists. Overwrite?": root.yes_no_window(condition)
+            
 
 
+    def check_errors(root, line):
+        line_list = line.split(" ")
+        for i in range(len(line_list)-1):
+            if line_list[i] == "already" and line_list[i+1] == "exists.":
+                return "File already exists. Overwrite?"
+            else: return "No errors"
 
     def warning_pop(root, warning):
         window = tk.Toplevel(root)
