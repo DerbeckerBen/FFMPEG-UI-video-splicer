@@ -4,8 +4,7 @@ from tkinter import filedialog, StringVar, ttk
 import subprocess
 from subprocess import PIPE, STDOUT, Popen, STD_INPUT_HANDLE, STD_ERROR_HANDLE
 import os
-import pandas as pd
-
+import sys
 
 class VideoSplicerApp(tk.Tk):
 
@@ -27,9 +26,13 @@ class VideoSplicerApp(tk.Tk):
         root.time_slot1 = StringVar(value="00:00:00")
         root.time_slot2 = StringVar(value="00:00:00")
         root.output_text = StringVar(value="No issues")
+        root.output_file_name = StringVar(value = "Output")
+        root.output_text_label = StringVar(value = "Output File Name")
 
         root.width = 1000
         root.height = 563
+
+        root.BashCommandsRan = [[]]
 
     def constructor_styles(root):
         style = ttk.Style(root)
@@ -55,6 +58,9 @@ class VideoSplicerApp(tk.Tk):
 
         ttk.Button(main_frame, text="Select Video...", command=root.grab_video).grid(row=0, column=0, sticky="ew", padx=5, pady=5)
         ttk.Button(main_frame, text="Output Folder...", command=root.set_render_video_path).grid(row=0, column=1, sticky="ew", padx=5, pady=5)
+        ttk.Entry(main_frame, textvariable=root.output_file_name).grid(row=0, column=2, sticky="ew", padx=5, pady=5)
+        ttk.Label(main_frame, textvariable=StringVar(value = ".mp4")).grid(row=0, column=3, sticky="ew", padx=5, pady=5)
+        ttk.Label(main_frame, textvariable=root.output_text_label).grid(row=1, column=2, sticky="ew", padx=20, pady=2)
 
         ttk.Label(main_frame, textvariable=root.grab_video_path).grid(row=1, column=0, columnspan=2, sticky="w", padx=5)
         ttk.Label(main_frame, textvariable=root.render_video_path).grid(row=2, column=0, columnspan=2, sticky="w", padx=5, pady=(0,10))
@@ -102,62 +108,52 @@ class VideoSplicerApp(tk.Tk):
 
     def export(root):
 
-        # THINGS TO HANDLE
+        root.check_errors()
 
-        # No file selected/ not found.
-        # folder not selected/ not found.
+        cmd = ["ffmpeg", "-i",root.grab_video_path.get() , "-ss", root.time_slot1.get(), "-to", root.time_slot2.get(), "-c", "copy", (os.path.join(root.render_video_path.get(), root.output_file_name.get()))]
+        #Adds the logs of the bash commands that was run for future uses
+        root.BashCommandsRan.append(root.execute(cmd))
 
-        # Time stamp 1 inputted incorrectly
-        # Time stamp 2 inputted incorrectly
-        # Time stamp 2 cannot be before time stamp 1.
 
-        # Output file name already exists
+
+    #method to write all the lines of terminal output to a list to read for future use in case of bugs
+    def execute(root, cmd):
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
+        for line in proc.stdout :
+           yield line
+
+        proc.stdout.close()
+        return_code = proc.wait()
+        if return_code:
+            raise subprocess.CalledProcessError(return_code, cmd)
+
+
+    def check_errors(root):
+        #Checks what files are within the selected directory and if there are no errors
+        directory = os.listdir(root.render_video_path.get())
+        search_string = root.output_file_name.get()
 
         if not os.path.isfile(root.grab_video_path.get()):
             root.output_text.set("Invalid video file.")
             root.warning_pop("Invalid video file.")
             return
-        
+
         if not os.path.isdir(root.render_video_path.get()):
             root.output_text.set("Invalid folder path.")
             root.warning_pop("Invalid folder path.")
             return
-        
+
         if root.time_slot1.get() >= root.time_slot2.get():
             root.output_text.set("End time must start after start time.")
             root.warning_pop("End time must start after start time")
             return
 
+        for fname in directory:
+            if os.path.isfile(directory+os.sep+fname) == os.path.isfile(directory.os.sep+root.output_file_name.get()):
+                root.output_text.set("File with name already exists.")
+                root.warning_pop("File with name already exists.")
+                return
 
-        cmd = ["ffmpeg", "-i",root.grab_video_path.get() , "-ss", root.time_slot1.get(), "-to", root.time_slot2.get(), "-c", "copy", (os.path.join(root.render_video_path.get(), "output.mp4"))]
-        list = root.execute(cmd)
-
-
-
-    #method to write all the lines of output to a list to read
-    def execute(root, cmd):
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
-        templine = ""
-        for line in proc.stdout :
-           yield line
-           templine = line
-        condition = root.check_errors(templine)
-        if condition == "No errors":
-            proc.stdout.close()
-            return_code = proc.wait()
-            if return_code:
-                raise subprocess.CalledProcessError(return_code, cmd)
-        else:
-            if condition == "File already exists. Overwrite?": root.yes_no_window(condition)
-            
-
-
-    def check_errors(root, line):
-        line_list = line.split(" ")
-        for i in range(len(line_list)-1):
-            if line_list[i] == "already" and line_list[i+1] == "exists.":
-                return "File already exists. Overwrite?"
-            else: return "No errors"
 
     def warning_pop(root, warning):
         window = tk.Toplevel(root)
@@ -220,7 +216,6 @@ class VideoSplicerApp(tk.Tk):
 
     def window_scaling(root, scale):
         root.tk.call('tk', 'scaling', scale)
- 
 
 
 
