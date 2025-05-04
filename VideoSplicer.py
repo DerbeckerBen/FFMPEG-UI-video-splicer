@@ -108,11 +108,13 @@ class VideoSplicerApp(tk.Tk):
 
     def export(root):
 
-        root.check_errors()
+         root.check_errors()
 
-        cmd = ["ffmpeg", "-i",root.grab_video_path.get() , "-ss", root.time_slot1.get(), "-to", root.time_slot2.get(), "-c", "copy", (os.path.join(root.render_video_path.get(), root.output_file_name.get()))]
-        #Adds the logs of the bash commands that was run for future uses
-        root.BashCommandsRan.append(root.execute(cmd))
+         cmd = ["ffmpeg", "-i", root.grab_video_path.get(), "-ss", root.time_slot1.get(), "-to",
+         root.time_slot2.get(), "-c", "copy",
+         (os.path.join(root.render_video_path.get(), root.output_file_name.get()))]
+         # Adds the logs of the bash commands that was run for future uses
+         root.BashCommandsRan.append(root.execute(cmd))
 
 
 
@@ -133,27 +135,28 @@ class VideoSplicerApp(tk.Tk):
         directory = os.listdir(root.render_video_path.get())
         search_string = root.output_file_name.get()
 
-        if not os.path.isfile(root.grab_video_path.get()):
-            root.output_text.set("Invalid video file.")
-            root.warning_pop("Invalid video file.")
-            return
+        if not root.grab_video_path.get() == "No file selected":
+            root.output_text.set("File not selected")
+            root.warning_pop("File not selected")
+            return False
 
-        if not os.path.isdir(root.render_video_path.get()):
-            root.output_text.set("Invalid folder path.")
-            root.warning_pop("Invalid folder path.")
-            return
+        if not root.render_video_path.get() == "No folder selected":
+            root.output_text.set("Output folder not selected")
+            root.warning_pop("Output folder not selected")
+            return False
 
         if root.time_slot1.get() >= root.time_slot2.get():
             root.output_text.set("End time must start after start time.")
             root.warning_pop("End time must start after start time")
-            return
+            return False
 
         for fname in directory:
             if os.path.isfile(directory+os.sep+fname) == os.path.isfile(directory.os.sep+root.output_file_name.get()):
                 root.output_text.set("File with name already exists.")
-                root.warning_pop("File with name already exists.")
-                return
+                root.yes_no_window("File with name already exists.")
+                return False
 
+        return True
 
     def warning_pop(root, warning):
         window = tk.Toplevel(root)
